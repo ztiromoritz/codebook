@@ -1,0 +1,1158 @@
+
+    <html>
+    <head>
+      <title>/Users/mo/wc/codebook/example-in/subfolder/subsub/example.js</title>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
+    </head>
+    <body>
+    <pre>
+    <code>
+(function (root, factory) {
+    <span class="hljs-comment">/*global module, define, define*/</span>
+    <span class="hljs-keyword">if</span> (typeof exports === <span class="hljs-string">&#x27;object&#x27;</span>) {
+        <span class="hljs-comment">// COMMON-JS</span>
+        module.exports = factory();
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (typeof define === <span class="hljs-string">&#x27;function&#x27;</span> &amp;&amp; define[<span class="hljs-string">&#x27;amd&#x27;</span>]) {
+        <span class="hljs-comment">// Asynchronous Module Definition AMD</span>
+        define([], factory);
+    } <span class="hljs-keyword">else</span> {
+        <span class="hljs-comment">//GLOBAL (e.g. browser)</span>
+        root[<span class="hljs-string">&#x27;Garfunkel&#x27;</span>] = factory();
+    }
+}(<span class="hljs-keyword">this</span>, function () {
+
+    <span class="hljs-keyword">var</span> X_IS_LEFT_TO_Y = <span class="hljs-literal">true</span>;
+
+    <span class="hljs-comment">/**
+     * Static Method
+     * <span class="hljs-doctag">@private</span>
+     */</span>
+    <span class="hljs-keyword">var</span> Garfunkel = {};
+
+    <span class="hljs-comment">/**
+     * General orientation of the coordinate system. This is a global setting for this module.
+     *
+     * Used for the isLeftOf, isRightOf, getLeftNormal, getRightNormal functions.
+     *
+     * FALSE, means the normal school book coordinates with (0,0) in the lower left corner.
+     * TRUE, means the canvas or graphic coordinates with (0,0) in the upper left corner;
+     *
+     * <span class="hljs-doctag">@static</span>
+     * <span class="hljs-doctag">@default</span> &quot;true&quot;
+     * <span class="hljs-doctag">@return</span> {boolean}
+     */</span>
+    Garfunkel.getXIsLeftOfY = function () {
+        <span class="hljs-keyword">return</span> X_IS_LEFT_TO_Y;
+    };
+
+    <span class="hljs-comment">/**
+     *
+     * <span class="hljs-doctag">@static</span>
+     * <span class="hljs-doctag">@default</span> &quot;true&quot;
+     * <span class="hljs-doctag">@param</span> {boolean} value
+     */</span>
+    Garfunkel.setXisLeftOfY = function (value) {
+        X_IS_LEFT_TO_Y = value;
+    };
+
+    <span class="hljs-comment">/**
+     * <span class="hljs-doctag">@example</span>
+     * Garfunkel.setGameCoords();
+     * var v = new Vect(2,2);
+     * var w = v.clone().turnLeft().mul(0.5);
+     * draw(v, &#x27;red&#x27;);
+     * draw(w, &#x27;green&#x27;);
+     * print(v)
+     * print(w)
+     * <span class="hljs-doctag">@static</span>
+     */</span>
+    Garfunkel.setGameCoords = function () {
+        X_IS_LEFT_TO_Y = <span class="hljs-literal">true</span>;
+    };
+
+    <span class="hljs-comment">/**
+     * <span class="hljs-doctag">@example</span>
+     * Garfunkel.setSchoolCoords();
+     * var v = new Vect(2,2);
+     * var w = v.clone().turnLeft().mul(0.5);
+     * draw(v, &#x27;red&#x27;);
+     * draw(w, &#x27;green&#x27;);
+     * <span class="hljs-doctag">@static</span>
+     */</span>
+    Garfunkel.setSchoolCoords = function () {
+        X_IS_LEFT_TO_Y = <span class="hljs-literal">false</span>;
+    };
+
+    Garfunkel.isVect = function isVect(obj) {
+        <span class="hljs-keyword">return</span> obj instanceof Garfunkel.Vect;
+    };
+
+    Garfunkel.isBox = function isBox(obj) {
+        <span class="hljs-keyword">return</span> obj instanceof Garfunkel.Box;
+    };
+
+    Garfunkel.isSegment = function isSegment(obj) {
+        <span class="hljs-keyword">return</span> obj instanceof Garfunkel.Segment;
+    };
+
+    Garfunkel.isLine = function isLine(obj) {
+        <span class="hljs-keyword">return</span> obj instanceof Garfunkel.Line;
+    };
+
+    Garfunkel.isRay = function isRay(obj) {
+        <span class="hljs-keyword">return</span> obj instanceof Garfunkel.Ray;
+    };
+
+    <span class="hljs-keyword">var</span> EPSILON = <span class="hljs-number">0.000001</span>;
+
+    <span class="hljs-comment">/**
+     * Represents a vector as well as a point.
+     * Methods that transform the mutable vector are chainable.
+     * <span class="hljs-doctag">@example</span>
+     * print(&quot;sadf&quot;,&quot;fooooo&quot;);
+     * print(&quot;foo&quot;);
+     * draw({x:2,y:4});
+     * <span class="hljs-doctag">@constructor</span>
+     * <span class="hljs-doctag">@param</span> {Number} x
+     * <span class="hljs-doctag">@param</span> {Number} y
+     */</span>
+    <span class="hljs-keyword">var</span> Vect = function (x, y) {
+        <span class="hljs-keyword">this</span>.x = x || <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">this</span>.y = y || <span class="hljs-number">0</span>;
+    };
+
+    <span class="hljs-keyword">var</span> ZERO = new Vect(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>);
+    <span class="hljs-keyword">var</span> ABSCISSA = new Vect(<span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
+    <span class="hljs-keyword">var</span> ORDINATE = new Vect(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>);
+
+
+    <span class="hljs-comment">/**
+     * <span class="hljs-doctag">@example</span>
+     * print(new Vector(2,4).toString());
+     * <span class="hljs-doctag">@return</span> {String}
+     */</span>
+    Vect.prototype.toString = function () {
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;x: &#x27;</span> + <span class="hljs-keyword">this</span>.x + <span class="hljs-string">&#x27; y: &#x27;</span> + <span class="hljs-keyword">this</span>.y;
+    };
+
+    <span class="hljs-comment">/**
+     * Clone!
+     * <span class="hljs-doctag">@return</span> {Vect}
+     */</span>
+    Vect.prototype.clone = function () {
+        <span class="hljs-keyword">return</span> new Vect(<span class="hljs-keyword">this</span>.x, <span class="hljs-keyword">this</span>.y);
+    };
+
+    Vect.prototype.cl = Vect.prototype.clone;
+
+
+    <span class="hljs-comment">/**
+     * Sets the coordinates of this Vect.
+     * (Without instantiating a new object)
+     * <span class="hljs-doctag">@param</span> {Number} x
+     * <span class="hljs-doctag">@param</span> {Number} y
+     */</span>
+    Vect.prototype.<span class="hljs-keyword">set</span> = function (x, y) {
+        <span class="hljs-keyword">this</span>.x = x || <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">this</span>.y = y || <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+    Vect.prototype.invert = function () {
+        <span class="hljs-keyword">this</span>.x = -<span class="hljs-keyword">this</span>.x;
+        <span class="hljs-keyword">this</span>.y = -<span class="hljs-keyword">this</span>.y;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+    Vect.prototype.mirrorOnX = function () {
+        <span class="hljs-keyword">this</span>.y = -<span class="hljs-keyword">this</span>.y;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+    Vect.prototype.mirrorOnY = function () {
+        <span class="hljs-keyword">this</span>.x = -<span class="hljs-keyword">this</span>.x
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    }
+
+    <span class="hljs-comment">/**
+     *
+     */</span>
+    Vect.prototype.xComponent = function () {
+        <span class="hljs-keyword">this</span>.y = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+    <span class="hljs-comment">/**
+     *
+     */</span>
+    Vect.prototype.yComponent = function () {
+        <span class="hljs-keyword">this</span>.x = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+    <span class="hljs-comment">/**
+     * Scalar multiplication.
+     * Each coordinate will be multiplied with the given scalar.
+     * <span class="hljs-doctag">@chainable</span>
+     * <span class="hljs-doctag">@param</span> {Number} a scalar to multiply the vector with
+     * <span class="hljs-doctag">@return</span> {Vect}
+     */</span>
+    Vect.prototype.mul = function (s) {
+        <span class="hljs-keyword">this</span>.x *= s;
+        <span class="hljs-keyword">this</span>.y *= s;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+    <span class="hljs-comment">/**
+     * Scalar division.
+     * Each coordinate will be divided by the given scalar.
+     * <span class="hljs-doctag">@chainable</span>
+     * <span class="hljs-doctag">@param</span> {Number} a scalar to divide the vector with
+     * <span class="hljs-doctag">@return</span> {Vect}
+     */</span>
+    Vect.prototype.div = function (s) {
+        <span class="hljs-keyword">this</span>.x /= s;
+        <span class="hljs-keyword">this</span>.y /= s;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+    <span class="hljs-comment">/**
+     * Adds a vector.
+     * <span class="hljs-doctag">@chainable</span>
+     * <span class="hljs-doctag">@param</span> {Vect} v
+     * <span class="hljs-doctag">@return</span> {Vect}
+     */</span>
+    Vect.prototype.add = function (v) {
+        <span class="hljs-keyword">this</span>.x += v.x;
+        <span class="hljs-keyword">this</span>.y += v.y;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+    <span class="hljs-comment">/**
+     * Substracts a vector.
+     * <span class="hljs-doctag">@chainable</span>
+     * <span class="hljs-doctag">@param</span> {Vect} v
+     * <span class="hljs-doctag">@return</span> {Vect}
+     */</span>
+    Vect.prototype.sub = function (v) {
+        <span class="hljs-keyword">this</span>.x -= v.x;
+        <span class="hljs-keyword">this</span>.y -= v.y;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+    <span class="hljs-comment">/**
+     * Dot product of this and the given vector.
+     * <span class="hljs-doctag">@param</span> v
+     * <span class="hljs-doctag">@return</span> {number}
+     */</span>
+    Vect.prototype.dot = function (v) {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.x * v.x + <span class="hljs-keyword">this</span>.y * v.y;
+    };
+
+    <span class="hljs-comment">/**
+     * Not exactly the cross product, because seems not to be defined for 2d vectors.
+     *
+     * &quot;Gives the Z-component of 3d cross product, if the two given
+     * vectors where extended to 3d vectors.&quot;
+     * or
+     * &quot;Determinant of a 2x2 matrix build by the two vectors.&quot;
+     *
+     * Usefull to find the orientation of the two vectors.
+     *
+     * <span class="hljs-doctag">@param</span> v
+     * <span class="hljs-doctag">@return</span> {number}
+     */</span>
+    Vect.prototype.cross = function (v) {
+        <span class="hljs-keyword">return</span> (<span class="hljs-keyword">this</span>.x * v.y) - (<span class="hljs-keyword">this</span>.y * v.x);
+    };
+
+    <span class="hljs-comment">/**
+     * Product of two vectors needed for the Gauss&#x27;s area formula.
+     *
+     * Describes the doubled area of the shape that is enclosed by
+     * (this.x,0), (v.x,0), (v.x,v.y),(this.x,this.y).
+     * So its an area based on the x-axis. If you reflect it on the x-axis,
+     * you get the trapeze of which the area value is calculated.
+     *
+     * Needed for orientation and area of a polygon.
+     * <span class="hljs-doctag">@see</span> Polygon.prototype.getArea() //TODO
+     * <span class="hljs-doctag">@example</span>
+     * const u = new Vect(3,5);
+     * const v = new Vect(5,7);
+     * const polygon = new Polygon(u, u.clone().mirrorOnX(), v.clone().mirrorOnY(), v);
+     * const result = u.trapeze(v);
+     *
+     * print(result);
+     * draw(u,v,polygon);
+     *
+     * <span class="hljs-doctag">@param</span> v
+     */</span>
+    Vect.prototype.trapeze = function (v) {
+        <span class="hljs-keyword">return</span> (v.x - <span class="hljs-keyword">this</span>.x) * (v.y + <span class="hljs-keyword">this</span>.y);
+    }
+
+    <span class="hljs-comment">/**
+     * Normalize the given vector.
+     *
+     * Optional parameter length can be used ass abbreviation.
+     * v.normalize.mul(33) -&gt; v.normalize(33);
+     * <span class="hljs-doctag">@param</span> {number} length
+     *  [optional] length of the target vector. If not set, length is 1.0.
+     *
+     * <span class="hljs-doctag">@return</span> {Vect}
+     */</span>
+    Vect.prototype.normalize = function (length) {
+        <span class="hljs-keyword">var</span> currenLength = <span class="hljs-keyword">this</span>.length();
+        <span class="hljs-keyword">if</span> (currenLength === <span class="hljs-number">0</span>) {
+            <span class="hljs-keyword">this</span>.x = <span class="hljs-number">1</span>;
+            <span class="hljs-keyword">this</span>.y = <span class="hljs-number">0</span>;
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">this</span>.div(currenLength);
+        }
+        <span class="hljs-keyword">if</span> (length)
+            <span class="hljs-keyword">this</span>.mul(length);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+
+    <span class="hljs-comment">/**
+     * Quadratic length of the vector.
+     * y lengthSq
+     * <span class="hljs-doctag">@return</span> {number}
+     */</span>
+    Vect.prototype.lengthSq = function () {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.x * <span class="hljs-keyword">this</span>.x + <span class="hljs-keyword">this</span>.y * <span class="hljs-keyword">this</span>.y;
+    };
+
+    <span class="hljs-comment">/**
+     * Euclidean norm/length/magnitude of the vector.
+     * <span class="hljs-doctag">@return</span> {number}
+     */</span>
+    Vect.prototype.length = function () {
+        <span class="hljs-keyword">return</span> Math.sqrt(<span class="hljs-keyword">this</span>.lengthSq());
+    };
+
+    <span class="hljs-comment">/**
+     * Quadratic distance of two vectors.
+     * <span class="hljs-doctag">@param</span> v
+     * <span class="hljs-doctag">@return</span> {number}
+     */</span>
+    Vect.prototype.distanceSq = function (v) {
+        <span class="hljs-keyword">var</span> dx = <span class="hljs-keyword">this</span>.x - v.x;
+        <span class="hljs-keyword">var</span> dy = <span class="hljs-keyword">this</span>.y - v.y;
+        <span class="hljs-keyword">return</span> dx * dx + dy * dy;
+    };
+
+    <span class="hljs-comment">/**
+     * Euclidean distance of two vectors.
+     * <span class="hljs-doctag">@param</span> v
+     * <span class="hljs-doctag">@return</span> {number}
+     */</span>
+    Vect.prototype.distance = function (v) {
+        <span class="hljs-keyword">return</span> Math.sqrt(<span class="hljs-keyword">this</span>.distanceSq(v));
+    };
+
+    <span class="hljs-comment">/**
+     * Manhatten/city block/Taxicab distance
+     * <span class="hljs-doctag">@param</span> v
+     * <span class="hljs-doctag">@return</span> {number}
+     */</span>
+    Vect.prototype.manhatten = function (v) {
+        <span class="hljs-keyword">var</span> dx = <span class="hljs-keyword">this</span>.x - v.x;
+        <span class="hljs-keyword">var</span> dy = <span class="hljs-keyword">this</span>.y - v.y;
+        <span class="hljs-keyword">return</span> Math.abs(dx) + Math.abs(dy);
+    };
+
+    <span class="hljs-comment">/**
+     * y isLeftOf
+     * <span class="hljs-doctag">@param</span> v
+     * <span class="hljs-doctag">@return</span> {boolean}
+     */</span>
+    Vect.prototype.isLeftOf = function (v) {
+        <span class="hljs-keyword">if</span> (X_IS_LEFT_TO_Y)
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.cross(v) &gt; <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">else</span>
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.cross(v) &lt; <span class="hljs-number">0</span>;
+    };
+
+
+    <span class="hljs-comment">/**
+     * <span class="hljs-doctag">@param</span> v
+     * <span class="hljs-doctag">@return</span> {boolean}
+     */</span>
+    Vect.prototype.isRightOf = function (v) {
+        <span class="hljs-keyword">if</span> (X_IS_LEFT_TO_Y)
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.cross(v) &lt; <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">else</span>
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.cross(v) &gt; <span class="hljs-number">0</span>;
+    };
+
+    <span class="hljs-comment">/**
+     * <span class="hljs-doctag">@chainable</span>
+     * <span class="hljs-doctag">@return</span> {Vect}
+     */</span>
+    Vect.prototype.turnLeft = function () {
+        <span class="hljs-keyword">var</span> x = <span class="hljs-keyword">this</span>.y * (X_IS_LEFT_TO_Y ? <span class="hljs-number">1</span> : -<span class="hljs-number">1</span>);
+        <span class="hljs-keyword">var</span> y = <span class="hljs-keyword">this</span>.x * (X_IS_LEFT_TO_Y ? -<span class="hljs-number">1</span> : <span class="hljs-number">1</span>);
+        <span class="hljs-keyword">this</span>.x = x;
+        <span class="hljs-keyword">this</span>.y = y;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+    <span class="hljs-comment">/**
+     * <span class="hljs-doctag">@chainable</span>
+     * <span class="hljs-doctag">@return</span> {Vect}
+     */</span>
+    Vect.prototype.turnRight = function () {
+        <span class="hljs-keyword">var</span> x = <span class="hljs-keyword">this</span>.y * (X_IS_LEFT_TO_Y ? -<span class="hljs-number">1</span> : <span class="hljs-number">1</span>);
+        <span class="hljs-keyword">var</span> y = <span class="hljs-keyword">this</span>.x * (X_IS_LEFT_TO_Y ? <span class="hljs-number">1</span> : -<span class="hljs-number">1</span>);
+        <span class="hljs-keyword">this</span>.x = x;
+        <span class="hljs-keyword">this</span>.y = y;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+    <span class="hljs-comment">/**
+     * <span class="hljs-doctag">@chainable</span>
+     * <span class="hljs-doctag">@return</span> {Vect}
+     */</span>
+    Vect.prototype.leftNormal = function () {
+        <span class="hljs-keyword">this</span>.turnLeft().normalize();
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+    <span class="hljs-comment">/**
+     * <span class="hljs-doctag">@chainable</span>
+     * <span class="hljs-doctag">@return</span> {Vect}
+     */</span>
+    Vect.prototype.rightNormal = function () {
+        <span class="hljs-keyword">this</span>.turnRight().normalize();
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+
+    <span class="hljs-comment">/**
+     * Gives the angle between a reference vector and this.
+     * The result is between [PI,-PI).
+     * In school coordinates, the angle is counted &lt;strong&gt;counter clockwise&lt;/strong&gt;
+     * from reference to the vector. In game coordinates, the angle is counted &lt;strong&gt;clockwise&lt;/strong&gt;
+     * from reference to the vector.
+     *
+     * <span class="hljs-doctag">@param</span> {Vector} ref
+     *  [optional] reference vector. default: (1,0).
+     * <span class="hljs-doctag">@return</span> {number}
+     */</span>
+    Vect.prototype.angle = function (ref) {
+        <span class="hljs-keyword">var</span> result;
+        <span class="hljs-keyword">if</span> (!(ref instanceof Vect)) {
+            <span class="hljs-keyword">return</span> Math.atan2(<span class="hljs-keyword">this</span>.y, <span class="hljs-keyword">this</span>.x); <span class="hljs-comment">// (- Math.atan2(0,1))</span>
+        } <span class="hljs-keyword">else</span> {
+            result = Math.atan2(<span class="hljs-keyword">this</span>.y, <span class="hljs-keyword">this</span>.x) - Math.atan2(ref.y, ref.x);
+            <span class="hljs-keyword">if</span> (result &gt; Math.PI) {
+                result = result - Math.PI * <span class="hljs-number">2</span>;
+            } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (result &lt; -Math.PI) {
+                result = Math.PI * <span class="hljs-number">2</span> + result;
+            }
+        }
+        <span class="hljs-keyword">return</span> result;
+    };
+
+    <span class="hljs-comment">/**
+     * Rotates the vector by the given angle.
+     * If you take the vector as a point, the default pivot is {x:0,y:0}
+     *
+     * <span class="hljs-doctag">@chainable</span>
+     * <span class="hljs-doctag">@param</span> {number} angle
+     *      in radians
+     * <span class="hljs-doctag">@param</span> {Vect} pivot
+     *      [optional] default is {x:0,y:0}
+     * <span class="hljs-doctag">@return</span> {Vect} the rotated vector
+     */</span>
+    Vect.prototype.rotate = function (angle, pivot) {
+        pivot = pivot || ZERO;
+        <span class="hljs-keyword">var</span> _x = pivot.x
+            + ((<span class="hljs-keyword">this</span>.x - pivot.x) * Math.cos(angle))
+            - ((<span class="hljs-keyword">this</span>.y - pivot.y) * Math.sin(angle));
+        <span class="hljs-keyword">var</span> _y = pivot.y
+            + ((<span class="hljs-keyword">this</span>.x - pivot.x) * Math.sin(angle))
+            + ((<span class="hljs-keyword">this</span>.y - pivot.y) * Math.cos(angle));
+        <span class="hljs-keyword">this</span>.x = _x;
+        <span class="hljs-keyword">this</span>.y = _y;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+
+    <span class="hljs-comment">/**
+     * Rotates the vector to the given angle.
+     * <span class="hljs-doctag">@chainable</span>
+     * <span class="hljs-doctag">@param</span> {number} angle in radians
+     * <span class="hljs-doctag">@return</span> {Vect} the rotated vector
+     */</span>
+    Vect.prototype.rotateTo = function (angle) {
+        <span class="hljs-keyword">this</span>.rotate(angle - <span class="hljs-keyword">this</span>.angle());
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+    <span class="hljs-comment">/**
+     * Rotates the vector towards the given angle.
+     * The rotation is limited by stepSize, so move a 0° vector towards 90° with limit 50°
+     * would result in a 50° vector. If the method with the same limit is reapplied again
+     * the result would be 90°.
+     *
+     * The rotation will take the &quot;shortest way&quot; towards the given angle.
+     *
+     * <span class="hljs-doctag">@chainable</span>
+     * <span class="hljs-doctag">@param</span> {number} angle - angle in radians
+     * <span class="hljs-doctag">@param</span> {number} stepSize - maximum angle to move towards angle
+     * <span class="hljs-doctag">@return</span> {Vect} the rotated vector
+     */</span>
+    Vect.prototype.rotateTowards = function (angle, stepSize) {
+        <span class="hljs-keyword">this</span>.rotate(angle - <span class="hljs-keyword">this</span>.angle());
+        <span class="hljs-comment">//TODO</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+
+    <span class="hljs-comment">/**
+     *  &quot;angle of incidence equal to the angle of reflexion&quot;
+     *  Performs a simple reflection of this object on a surface
+     *  that has the direction of the given vector u.
+     *  <span class="hljs-doctag">@param</span> {Vect} u
+     */</span>
+    Vect.prototype.reflectOn = function (u) {
+        <span class="hljs-keyword">var</span> l, n, r;
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.isRightOf(u)) {
+            l = <span class="hljs-keyword">this</span>.clone();
+            n = u.clone().leftNormal();
+            r = l.sub(n.clone().mul(n.dot(l) * (<span class="hljs-number">2</span>)));
+        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.isLeftOf(u)) {
+            l = <span class="hljs-keyword">this</span>.clone();
+            n = u.clone().rightNormal();
+            r = l.sub(n.clone().mul(n.dot(l) * (<span class="hljs-number">2</span>)));
+        } <span class="hljs-keyword">else</span> {
+            r = <span class="hljs-keyword">this</span>.clone().invert();
+        }
+        <span class="hljs-keyword">this</span>.x = r.x;
+        <span class="hljs-keyword">this</span>.y = r.y;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+
+    <span class="hljs-comment">/**
+     *
+     * A rectangular box with edges parallel to the coordinate axes.
+     *
+     * So:
+     *        Box#left &amp;le; Box#right
+     *        Box#top  &amp;le; Box#bottom
+     *
+     * <span class="hljs-doctag">@class</span> Box
+     * <span class="hljs-doctag">@constructor</span>
+     * <span class="hljs-doctag">@param</span> {Number} x0
+     * <span class="hljs-doctag">@param</span> {Number} x1
+     * <span class="hljs-doctag">@param</span> {Number} y0
+     * <span class="hljs-doctag">@param</span> {Number} y1
+     */</span>
+    <span class="hljs-keyword">var</span> Box = function (x0, x1, y0, y1) {
+        <span class="hljs-keyword">this</span>.left = Math.min(x0, x1);
+        <span class="hljs-keyword">this</span>.right = Math.max(x0, x1);
+
+        <span class="hljs-keyword">this</span>.y_min = Math.min(y0, y1);
+        <span class="hljs-keyword">this</span>.y_max = Math.max(y0, y1);
+        <span class="hljs-keyword">this</span>.top = X_IS_LEFT_TO_Y ? <span class="hljs-keyword">this</span>.y_min : <span class="hljs-keyword">this</span>.y_max;
+        <span class="hljs-keyword">this</span>.bottom = X_IS_LEFT_TO_Y ? <span class="hljs-keyword">this</span>.y_max : <span class="hljs-keyword">this</span>.y_min;
+    };
+
+    <span class="hljs-comment">/**
+     * Bounding box of a given Segment
+     * <span class="hljs-doctag">@static</span>
+     * <span class="hljs-doctag">@param</span> {Segment} segment
+     */</span>
+    Box.fromSegment = function (segment) {
+        <span class="hljs-keyword">return</span> new Box(segment.p1.x, segment.p2.x, segment.p1.y, segment.p2.y);
+    };
+
+    Box.fromObject = function (obj) {
+        <span class="hljs-keyword">return</span> new Box(obj.x0, obj.x1, obj.y0, obj.y1);
+    };
+
+    <span class="hljs-comment">/**
+     * <span class="hljs-doctag">@return</span> {string}
+     */</span>
+    Box.prototype.toString = function () {
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;[ left: &quot;</span> + <span class="hljs-keyword">this</span>.left + <span class="hljs-string">&quot; right: &quot;</span> + <span class="hljs-keyword">this</span>.right + <span class="hljs-string">&quot; top: &quot;</span> + <span class="hljs-keyword">this</span>.top + <span class="hljs-string">&quot; bottom: &quot;</span> + <span class="hljs-keyword">this</span>.bottom + <span class="hljs-string">&quot; ]&quot;</span>;
+    };
+
+    Box.prototype.containsPoint = function (p) {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.left &lt;= p.x &amp;&amp; p.x &lt;= <span class="hljs-keyword">this</span>.right<span class="hljs-comment">//</span>
+            &amp;&amp; <span class="hljs-keyword">this</span>.y_min &lt;= p.y &amp;&amp; p.y &lt;= <span class="hljs-keyword">this</span>.y_max;
+    };
+
+    Box.prototype.intersect = function (box) {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.left &lt;= box.right &amp;&amp; box.left &lt;= <span class="hljs-keyword">this</span>.right<span class="hljs-comment">//</span>
+            &amp;&amp; <span class="hljs-keyword">this</span>.y_min &lt;= box.y_max &amp;&amp; box.y_min &lt;= <span class="hljs-keyword">this</span>.y_max;
+    };
+
+    Box.prototype.translate = function (v) {
+        <span class="hljs-keyword">this</span>.left += v.x;
+        <span class="hljs-keyword">this</span>.right += v.x;
+        <span class="hljs-keyword">this</span>.y_min += v.y;
+        <span class="hljs-keyword">this</span>.y_max += v.y;
+        <span class="hljs-keyword">this</span>.top += v.y;
+        <span class="hljs-keyword">this</span>.bottom += v.y;
+    };
+
+    <span class="hljs-comment">/**
+     * A line segment represented by two points.
+     *
+     * (The line segment has a orinentation given by the order or the two points.)
+     * <span class="hljs-doctag">@class</span> Segment
+     * <span class="hljs-doctag">@constructor</span>
+     * <span class="hljs-doctag">@param</span> {Object} p1
+     * <span class="hljs-doctag">@param</span> {Object} p2
+     */</span>
+    <span class="hljs-keyword">var</span> Segment = function (p1, p2) {
+        <span class="hljs-keyword">this</span>.p1 = (p1 || new Vect(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>)).clone();
+        <span class="hljs-keyword">this</span>.p2 = (p2 || new Vect(<span class="hljs-number">1</span>, <span class="hljs-number">0</span>)).clone();
+    };
+
+    <span class="hljs-comment">/**
+     * Create segment from support and connection vector
+     */</span>
+    Segment.fromSupport = function (support, connection) {
+        <span class="hljs-keyword">return</span> new Segment(support, support.clone().add(connection));
+    }
+
+
+    Segment.prototype.getBoundingBox = function () {
+        <span class="hljs-keyword">return</span> new Box.fromSegment(<span class="hljs-keyword">this</span>);
+    };
+
+
+    Segment.prototype.connection = function () {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.p2.clone().sub(<span class="hljs-keyword">this</span>.p1);
+    };
+    <span class="hljs-comment">//Segment.prototype.getConnection = Segment.prototype.connection;</span>
+
+    Segment.prototype.direction = function () {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.connection().normalize();
+    };
+
+    Segment.prototype.toString = function () {
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;[ &#x27;</span> + <span class="hljs-keyword">this</span>.p1 + <span class="hljs-string">&#x27; , &#x27;</span> + <span class="hljs-keyword">this</span>.p2 + <span class="hljs-string">&#x27; ]&#x27;</span>;
+    };
+
+    Segment.fromArray = function (arr) {
+        <span class="hljs-keyword">return</span> new Segment(new Vect(arr[<span class="hljs-number">0</span>], arr[<span class="hljs-number">1</span>]), new Vect(arr[<span class="hljs-number">2</span>], arr[<span class="hljs-number">3</span>]));
+    };
+
+    Segment.fromObject = function (obj) {
+        <span class="hljs-keyword">return</span> new Segment(obj.p1, obj.p2);
+    };
+
+    Segment.prototype.clone = function () {
+        <span class="hljs-keyword">return</span> new Segment(<span class="hljs-keyword">this</span>.p1.clone(), <span class="hljs-keyword">this</span>.p2.clone());
+    };
+
+
+    <span class="hljs-comment">/**
+     * Move Segment to center. Keeps direction and length
+     */</span>
+    Segment.prototype.toCenter = function () {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.translate(ZERO.clone().sub(<span class="hljs-keyword">this</span>.p1));
+    };
+
+    <span class="hljs-comment">/**
+     * Move every point by v
+     * <span class="hljs-doctag">@param</span> v
+     */</span>
+    Segment.prototype.translate = function (v) {
+        <span class="hljs-keyword">this</span>.p1.add(v);
+        <span class="hljs-keyword">this</span>.p2.add(v);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+
+    <span class="hljs-comment">/**
+     * Gives a point on the segment.
+     * number:
+     *  0   -&gt; p1
+     *  1   -&gt; p2
+     *  0.5 -&gt; middle between p1,p2
+     *  &lt;0  -&gt; a point beyond p1 on the line the segment defines
+     *  &gt;1  -&gt; a point beyond p2 on the line the segment defines
+     *
+     *
+     * <span class="hljs-doctag">@param</span> {number} position
+     *   number between [0,1] to get a point between p1 and p2.
+     *
+     */</span>
+    Segment.prototype.getPoint = function (position) {
+        <span class="hljs-keyword">return</span> new Vect(<span class="hljs-keyword">this</span>.p2.x * position + <span class="hljs-keyword">this</span>.p1.x * (<span class="hljs-number">1</span> - position),
+            <span class="hljs-keyword">this</span>.p2.y * position + <span class="hljs-keyword">this</span>.p1.y * (<span class="hljs-number">1</span> - position));
+    };
+
+    <span class="hljs-comment">/**
+     * Return the middle between p1 and p2
+     * <span class="hljs-doctag">@return</span> {Vect}
+     *      middle point of the Segment
+     */</span>
+    Segment.prototype.getMiddle = function () {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.getPoint(<span class="hljs-number">0.5</span>);
+    };
+
+    <span class="hljs-comment">/**
+     * Rotate the Segment
+     * <span class="hljs-doctag">@param</span> {number} angle
+     *      in radians
+     * <span class="hljs-doctag">@param</span> {Vect} pivot
+     *      [optional] default is this.p1, *not* {x:0,y:0}
+     * <span class="hljs-doctag">@returns</span> {Segment}
+     */</span>
+    Segment.prototype.rotate = function (angle, pivot) {
+        <span class="hljs-keyword">if</span> (pivot) {
+            <span class="hljs-keyword">this</span>.p1.rotate(angle, pivot);
+        } <span class="hljs-keyword">else</span> {
+            pivot = <span class="hljs-keyword">this</span>.p1;
+        }
+        <span class="hljs-keyword">this</span>.p2.rotate(angle, pivot);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+    Segment.prototype.angle = function (ref) {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.connection().angle(ref);
+    };
+
+
+    Segment.prototype.length = function () {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.connection().length();
+    };
+
+    Segment.prototype.lengthSq = function () {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.connection().lengthSq();
+    };
+
+
+    <span class="hljs-comment">/**
+     *
+     * <span class="hljs-doctag">@param</span> s
+     * <span class="hljs-doctag">@returns</span> {boolean}
+     *      true, if the both segments intersect
+     */</span>
+    Segment.prototype.intersect = function (s) {
+
+        <span class="hljs-keyword">var</span> touchOrCross = function (s1, s2) {
+
+            <span class="hljs-comment">// s1 as line, s2 as two points</span>
+            <span class="hljs-keyword">var</span> u = s1.connection(); <span class="hljs-comment">// Move this.p1 to ZERO</span>
+            <span class="hljs-keyword">var</span> v = s2.p1.clone().sub(s1.p1);
+            <span class="hljs-keyword">var</span> w = s2.p2.clone().sub(s1.p1);
+
+            <span class="hljs-comment">// Check on which side the points of s2 are</span>
+            <span class="hljs-keyword">var</span> c1 = v.cross(u);
+            <span class="hljs-keyword">var</span> c2 = w.cross(u);
+            <span class="hljs-keyword">if</span> (Math.abs(c1) &lt; EPSILON || Math.abs(c2) &lt; EPSILON)
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>; <span class="hljs-comment">// s2 touches s1</span>
+            <span class="hljs-keyword">return</span> (c1 &gt; <span class="hljs-number">0</span>) !== (c2 &gt; <span class="hljs-number">0</span>);
+            <span class="hljs-comment">// if both points on opposite sites -&gt; s2 cross s1</span>
+        };
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.getBoundingBox().intersect(s.getBoundingBox())
+            &amp;&amp; touchOrCross(<span class="hljs-keyword">this</span>, s)
+            &amp;&amp; touchOrCross(s, <span class="hljs-keyword">this</span>);
+    };
+
+    Segment.prototype.intersect2 = function (s) {
+
+    };
+
+    <span class="hljs-comment">/**
+     * <span class="hljs-doctag">@class</span> Line
+     * <span class="hljs-doctag">@param</span> segment
+     * <span class="hljs-doctag">@constructor</span>
+     */</span>
+    <span class="hljs-keyword">var</span> Line = function (p1, p2) {
+        <span class="hljs-keyword">this</span>.p1 = p1.clone();
+        <span class="hljs-keyword">this</span>.p2 = p2.clone();
+    };
+
+    Line.fromSegment = function (segment) {
+        <span class="hljs-keyword">this</span>.p1 = segment.p1.clone();
+        <span class="hljs-keyword">this</span>.p2 = segment.p2.clone();
+    };
+
+    Line.fromArray = function (arr) {
+        <span class="hljs-keyword">return</span> new Line(new Vect(arr[<span class="hljs-number">0</span>], arr[<span class="hljs-number">1</span>]), new Vect(arr[<span class="hljs-number">2</span>], arr[<span class="hljs-number">3</span>]));
+    };
+
+    Line.prototype.direction = function () { <span class="hljs-comment">//<span class="hljs-doctag">TODO:</span> connection vs direction</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.p2.clone().sub(<span class="hljs-keyword">this</span>.p1).normalize();
+    };
+
+
+    Line.EQUAL = <span class="hljs-number">1</span>;
+    Line.PARALLEL = <span class="hljs-number">2</span>;
+
+    <span class="hljs-comment">/**
+     *
+     * <span class="hljs-doctag">@param</span> line
+     * <span class="hljs-doctag">@returns</span> {Vect|Line.PARALLEL|Line.EQUIVALENT} - Intersection is
+     */</span>
+    Line.prototype.intersect = function (line) {
+
+        <span class="hljs-comment">// this: x = a + b*t</span>
+        <span class="hljs-comment">// line: x = c + d*s</span>
+
+        <span class="hljs-comment">//direction vectors</span>
+        <span class="hljs-keyword">var</span> b = <span class="hljs-keyword">this</span>.direction();
+        <span class="hljs-keyword">var</span> d = line.direction();
+
+        <span class="hljs-comment">//support vectors</span>
+        <span class="hljs-keyword">var</span> a = <span class="hljs-keyword">this</span>.p1;
+        <span class="hljs-keyword">var</span> c = line.p1;
+
+        <span class="hljs-comment">//difference between support vector</span>
+        <span class="hljs-keyword">var</span> z = c.clone().sub(a);
+
+        <span class="hljs-keyword">var</span> cross = b.cross(d);
+        <span class="hljs-keyword">var</span> numerator = z.cross(d); <span class="hljs-comment">//(this.p1.y-line.p1.y)*d.x - (this.p1.x-line.p1.x)* d.y;</span>
+
+        <span class="hljs-keyword">if</span> (Math.abs(cross) &lt; EPSILON) { <span class="hljs-comment">//directions are parallel</span>
+            <span class="hljs-keyword">if</span> (Math.abs(numerator) &lt; EPSILON) { <span class="hljs-comment">//connection of support is parallel to direction</span>
+                <span class="hljs-keyword">return</span> Line.EQUAL;
+            } <span class="hljs-keyword">else</span> {
+                <span class="hljs-keyword">return</span> Line.PARALLEL;
+            }
+        }
+        <span class="hljs-keyword">var</span> t = numerator / cross;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.p1.clone().add(b.mul(t));
+    };
+
+
+    <span class="hljs-comment">/**
+     * General intersection method for all combinations of lines, segments, rays.
+     * <span class="hljs-doctag">@private</span>
+     * <span class="hljs-doctag">@param</span> {Segment|Ray|Line} g
+     * <span class="hljs-doctag">@param</span> {Segment|Ray|Line} h
+     * <span class="hljs-doctag">@returns</span> {Vect|Segment|Ray|Line|null}
+     *      An object that describes the intersection. Can be null.
+     */</span>
+    function lineIntersect(g, h) {
+
+        <span class="hljs-comment">// g: x = g.p1 + (g.p2-g.p1)*t = a + b*t</span>
+        <span class="hljs-comment">// h: x = h.p1 + (h.p2-h.p1)*s = c + d*s</span>
+
+        <span class="hljs-comment">//direction vectors</span>
+        <span class="hljs-keyword">var</span> b = g.direction();
+        <span class="hljs-keyword">var</span> d = h.direction();
+
+        <span class="hljs-comment">//support vectors</span>
+        <span class="hljs-keyword">var</span> a = g.p1;
+        <span class="hljs-keyword">var</span> c = h.p1;
+
+        <span class="hljs-comment">//difference between support vector</span>
+        <span class="hljs-keyword">var</span> z = c.clone().sub(a); <span class="hljs-comment">// (c-a)</span>
+
+        <span class="hljs-keyword">var</span> cross_directions = b.cross(d);
+        <span class="hljs-keyword">var</span> dot_directions = b.dot(d);
+        <span class="hljs-keyword">var</span> cross_support_direction = z.cross(d); <span class="hljs-comment">//(this.p1.y-line.p1.y)*d.x - (this.p1.x-line.p1.x)* d.y;</span>
+        <span class="hljs-keyword">var</span> dot_support_direction = z.dot(d);
+
+        <span class="hljs-keyword">if</span> (Math.abs(cross_directions) &lt; EPSILON) { <span class="hljs-comment">//directions are parallel</span>
+            <span class="hljs-keyword">if</span> (Math.abs(cross_support_direction) &lt; EPSILON) { <span class="hljs-comment">//connection of support is parallel to direction</span>
+                <span class="hljs-keyword">if</span> (isLine(g)) {
+                    <span class="hljs-keyword">return</span> h.clone();
+                }
+                <span class="hljs-keyword">if</span> (isLine(h)) {
+                    <span class="hljs-keyword">return</span> g.clone();
+                }
+                <span class="hljs-keyword">if</span> (isRay(g) &amp;&amp; isRay(h)) {
+                    <span class="hljs-keyword">if</span> (dot_directions &gt; <span class="hljs-number">0</span>) {
+                        <span class="hljs-comment">//both rays in same direction</span>
+                        <span class="hljs-keyword">if</span> (dot_support_direction &gt; <span class="hljs-number">0</span>)
+                            <span class="hljs-keyword">return</span> h.clone();
+                        <span class="hljs-keyword">else</span>
+                            <span class="hljs-keyword">return</span> g.clone();
+                    } <span class="hljs-keyword">else</span> {
+                        <span class="hljs-comment">//both ray in different directions</span>
+                        <span class="hljs-keyword">if</span> (dot_support_direction &gt; <span class="hljs-number">0</span>)
+                            <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
+                        <span class="hljs-keyword">else</span>
+                            <span class="hljs-keyword">return</span> new Segment(g.p1, h.p1);
+                    }
+                }
+                <span class="hljs-keyword">if</span> (isSegment(g) &amp;&amp; isSegment(h)) {
+
+                    <span class="hljs-keyword">var</span> gp1 = g.containsPoint(h.p1);
+                    <span class="hljs-keyword">var</span> gp2 = g.containsPoint(h.p2);
+                    <span class="hljs-keyword">var</span> hp1 = h.containsPoint(g.p1);
+                    <span class="hljs-keyword">var</span> hp2 = h.containsPoint(g.p2);
+
+                    <span class="hljs-comment">// 0000 =&gt; null;</span>
+                    <span class="hljs-comment">// 1000 =&gt; XXX</span>
+                    <span class="hljs-comment">// 0100 =&gt; XXX</span>
+                    <span class="hljs-comment">// 1100 =&gt; return h</span>
+                    <span class="hljs-comment">// 0010 =&gt; XXX</span>
+                    <span class="hljs-comment">// 1010 =&gt; [hp1,gp1]</span>
+                    <span class="hljs-comment">// 0110 =&gt; [hp2,gp1]</span>
+                    <span class="hljs-comment">// 1110 =&gt; return h (touch)</span>
+                    <span class="hljs-comment">// 0001 =&gt; XXX</span>
+                    <span class="hljs-comment">// 1001 =&gt; [hp1,gp2]</span>
+                    <span class="hljs-comment">// 0101 =&gt; [hp2,gp2]</span>
+                    <span class="hljs-comment">// 1101 =&gt; return h</span>
+                    <span class="hljs-comment">// 0011 =&gt; return g</span>
+                    <span class="hljs-comment">// 1011 =&gt; return g</span>
+                    <span class="hljs-comment">// 0111 =&gt; return g</span>
+                    <span class="hljs-comment">// 1111 =&gt; return g (or h)</span>
+
+                    <span class="hljs-keyword">if</span> (gp1 &amp;&amp; gp2)
+                        <span class="hljs-keyword">return</span> h.clone();
+                    <span class="hljs-keyword">if</span> (hp1 &amp;&amp; hp2)
+                        <span class="hljs-keyword">return</span> g.clone();
+                    <span class="hljs-keyword">if</span> (gp1 &amp;&amp; hp1)
+                        <span class="hljs-keyword">return</span> new Segment(h.p1, g.p1);
+                    <span class="hljs-keyword">if</span> (gp2 &amp;&amp; hp1)
+                        <span class="hljs-keyword">return</span> new Segment(h.p2, g.p1);
+                    <span class="hljs-keyword">if</span> (gp1 &amp;&amp; hp2)
+                        <span class="hljs-keyword">return</span> new Segment(h.p1, g.p2);
+                    <span class="hljs-keyword">if</span> (gp2 &amp;&amp; hp2)
+                        <span class="hljs-keyword">return</span> new Segment(h.p2, g.p2);
+                    <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
+                }
+                <span class="hljs-keyword">if</span> (isSegment(g)) { <span class="hljs-comment">//h is ray</span>
+                    <span class="hljs-comment">//TODO</span>
+                    <span class="hljs-keyword">if</span> (g.containsPoint(h.p1)) {
+
+                    }
+                } <span class="hljs-keyword">else</span> { <span class="hljs-comment">//h is segment, g is ray</span>
+                    <span class="hljs-comment">//TODO</span>
+                    <span class="hljs-keyword">if</span> (h.containsPoint(g.p2)) {
+
+                    }
+                }
+            } <span class="hljs-keyword">else</span> {
+                <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>; <span class="hljs-comment">//no intersection Line.PARALLEL;</span>
+            }
+        }
+        <span class="hljs-keyword">var</span> t = cross_support_direction / cross_directions;
+        <span class="hljs-keyword">return</span> g.p1.clone().add(b.mul(t));
+    }
+
+
+    <span class="hljs-comment">/**
+     * <span class="hljs-doctag">@class</span> Ray
+     * <span class="hljs-doctag">@param</span> segment
+     * <span class="hljs-doctag">@constructor</span>
+     */</span>
+    <span class="hljs-keyword">var</span> Ray = function (segment) {
+
+    };
+
+    <span class="hljs-comment">/**
+     * <span class="hljs-doctag">@class</span> Triangle
+     * <span class="hljs-doctag">@param</span> a
+     * <span class="hljs-doctag">@param</span> b
+     * <span class="hljs-doctag">@param</span> c
+     * <span class="hljs-doctag">@constructor</span>
+     */</span>
+    <span class="hljs-keyword">var</span> Triangle = function (a, b, c) {
+        <span class="hljs-keyword">this</span>.a = a.clone();
+        <span class="hljs-keyword">this</span>.b = b.clone();
+        <span class="hljs-keyword">this</span>.c = c.clone();
+    };
+
+
+    Triangle.prototype.angleA = function () {
+        <span class="hljs-keyword">var</span> v = <span class="hljs-keyword">this</span>.b.clone().sub(<span class="hljs-keyword">this</span>.a);
+        <span class="hljs-keyword">var</span> w = <span class="hljs-keyword">this</span>.c.clone().sub(<span class="hljs-keyword">this</span>.a);
+        <span class="hljs-keyword">var</span> angle = v.angle(w);
+        <span class="hljs-keyword">if</span> (angle &gt;= Math.PI)
+            <span class="hljs-keyword">return</span> w.angle(v);
+        <span class="hljs-keyword">return</span> angle;
+    };
+
+    Triangle.prototype.angleB = function () {
+        <span class="hljs-keyword">var</span> v = <span class="hljs-keyword">this</span>.a.clone().sub(<span class="hljs-keyword">this</span>.b);
+        <span class="hljs-keyword">var</span> w = <span class="hljs-keyword">this</span>.c.clone().sub(<span class="hljs-keyword">this</span>.b);
+        <span class="hljs-keyword">var</span> angle = v.angle(w);
+        <span class="hljs-keyword">if</span> (angle &gt;= Math.PI)
+            <span class="hljs-keyword">return</span> w.angle(v);
+        <span class="hljs-keyword">return</span> angle;
+    };
+
+    Triangle.prototype.angleC = function () {
+        <span class="hljs-keyword">var</span> v = <span class="hljs-keyword">this</span>.a.clone().sub(<span class="hljs-keyword">this</span>.c);
+        <span class="hljs-keyword">var</span> w = <span class="hljs-keyword">this</span>.b.clone().sub(<span class="hljs-keyword">this</span>.c);
+        <span class="hljs-keyword">var</span> angle = v.angle(w);
+        <span class="hljs-keyword">if</span> (angle &gt;= Math.PI)
+            <span class="hljs-keyword">return</span> w.angle(v);
+        <span class="hljs-keyword">return</span> angle;
+    };
+
+
+    <span class="hljs-comment">/**
+     * <span class="hljs-doctag">@class</span> Circle
+     * <span class="hljs-doctag">@param</span> p
+     * <span class="hljs-doctag">@param</span> radius
+     * <span class="hljs-doctag">@constructor</span>
+     */</span>
+    <span class="hljs-keyword">var</span> Circle = function (p, radius) {
+
+    };
+
+    <span class="hljs-comment">/**
+     * <span class="hljs-doctag">@class</span> Polygon
+     * <span class="hljs-doctag">@param</span> points
+     * <span class="hljs-doctag">@constructor</span>
+     */</span>
+    <span class="hljs-keyword">var</span> Polygon = function (...points) {
+        <span class="hljs-keyword">this</span>.points = points.map(_ =&gt; _.clone());
+        <span class="hljs-keyword">this</span>.edges = <span class="hljs-literal">null</span>;
+    };
+
+
+    Polygon.fromArray = function (arr) {
+        <span class="hljs-keyword">const</span> points = [];
+        <span class="hljs-keyword">const</span> len = Math.floor(arr.length / <span class="hljs-number">2</span>);
+        <span class="hljs-keyword">for</span> (let n = <span class="hljs-number">0</span>; n &lt; len; n++) {
+            points.push(new Vect(arr[n * <span class="hljs-number">2</span>], arr[n * <span class="hljs-number">2</span> + <span class="hljs-number">1</span>]));
+        }
+        <span class="hljs-keyword">return</span> new Polygon(...points);
+    };
+
+
+    Polygon.prototype.getPoints = function () {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.points;
+    }
+
+    Polygon.prototype.getEdges = function () {
+        <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.edges) {
+            <span class="hljs-keyword">this</span>.edges = [];
+            <span class="hljs-keyword">const</span> len = <span class="hljs-keyword">this</span>.points.length;
+            <span class="hljs-keyword">for</span> (let i = <span class="hljs-number">0</span>; i &lt; len; i++) {
+                <span class="hljs-keyword">this</span>.edges.push(<span class="hljs-keyword">this</span>.points[(i + <span class="hljs-number">1</span>) % len].clone().sub(<span class="hljs-keyword">this</span>.points[i]));
+            }
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.edges;
+    };
+
+
+    <span class="hljs-comment">/**
+     * might be negative
+     */</span>
+    Polygon.prototype.getArea = function () {
+        <span class="hljs-keyword">const</span> edges = <span class="hljs-keyword">this</span>.getEdges();
+        <span class="hljs-keyword">const</span> len = edges.length;
+        <span class="hljs-keyword">const</span> A2 = edges
+            .map((current, index) =&gt; {
+                <span class="hljs-keyword">return</span> [current, edges[(index + <span class="hljs-number">1</span>) % len]];
+            })
+            .reduce((acc, [u, v]) =&gt; {
+                <span class="hljs-keyword">return</span> acc + u.trapeze(v);
+            }, <span class="hljs-number">0</span>);
+        <span class="hljs-keyword">return</span> A2 / <span class="hljs-number">2</span>;
+    }
+
+    Polygon.prototype.getAbsArea = function () {
+        <span class="hljs-keyword">return</span> Math.abs(<span class="hljs-keyword">this</span>.getArea());
+    }
+
+    Polygon.prototype.isClockwise = function () {
+        <span class="hljs-comment">// Shoelace formula</span>
+        <span class="hljs-comment">// https://en.wikipedia.org/wiki/Shoelace_formula</span>
+        <span class="hljs-keyword">if</span> (X_IS_LEFT_TO_Y) {
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.getArea() &lt; <span class="hljs-number">0</span>;
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.getArea() &gt; <span class="hljs-number">0</span>;
+        }
+
+    };
+
+    Polygon.prototype.getConvexPoints = function () {
+
+    };
+
+    Polygon.prototype.getConcavePoints = function () {
+
+    };
+
+    <span class="hljs-comment">/**/
+    var Graph = function (...points) {
+
+    };
+
+
+    /**
+     * A simple object pool
+     *
+     * <span class="hljs-doctag">@class</span> Pool
+     *
+     * <span class="hljs-doctag">@constructor</span>
+     * <span class="hljs-doctag">@param</span> {Number} capacity The initial capacity.
+     */</span>
+    <span class="hljs-keyword">var</span> Pool = function (capacity, <span class="hljs-keyword">constructor</span>, initializer, growth) {
+        <span class="hljs-keyword">this</span>.items = new Array(capacity);
+        <span class="hljs-keyword">this</span>.capacity = capacity;
+        <span class="hljs-keyword">this</span>.current = capacity;
+        <span class="hljs-keyword">this</span>.initializer = initializer;
+        <span class="hljs-keyword">this</span>.<span class="hljs-keyword">constructor</span> = <span class="hljs-keyword">constructor</span>;
+        <span class="hljs-keyword">this</span>.growth = growth || function (cap) {
+            <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
+        };<span class="hljs-comment">//</span>
+        <span class="hljs-keyword">this</span>.createItems(capacity);
+    };
+
+
+    <span class="hljs-comment">/**
+     * CreateItems
+     *
+     *
+     */</span>
+    Pool.prototype.createItems = function (size) {
+        <span class="hljs-keyword">this</span>.items.length = size;
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; size; i++) {
+            <span class="hljs-keyword">this</span>.items[i] = new <span class="hljs-keyword">this</span>.<span class="hljs-keyword">constructor</span>();
+        }
+    };
+
+    <span class="hljs-comment">/**
+     */</span>
+    Pool.prototype.<span class="hljs-keyword">get</span> = function () {
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.current === <span class="hljs-number">0</span>) {
+            <span class="hljs-keyword">var</span> growth = <span class="hljs-keyword">this</span>.growth(<span class="hljs-keyword">this</span>.capacity);
+            <span class="hljs-keyword">this</span>.capacity += growth;
+            <span class="hljs-keyword">this</span>.current = growth;
+            <span class="hljs-keyword">this</span>.createItems(growth);
+        }
+        <span class="hljs-keyword">this</span>.current--;
+        <span class="hljs-keyword">var</span> item = <span class="hljs-keyword">this</span>.items[<span class="hljs-keyword">this</span>.current];
+        <span class="hljs-keyword">this</span>.initializer.apply(item, arguments);
+        <span class="hljs-keyword">return</span> item;
+    };
+
+    <span class="hljs-comment">/**
+     */</span>
+    Pool.prototype.dispose = function (obj) {
+        <span class="hljs-keyword">this</span>.current = <span class="hljs-keyword">this</span>.items.push(obj);
+        <span class="hljs-keyword">this</span>.capacity = Math.max(<span class="hljs-keyword">this</span>.capacity, <span class="hljs-keyword">this</span>.current);
+    };
+
+
+    Garfunkel.Vect = Vect;
+    Garfunkel.Box = Box;
+    Garfunkel.Segment = Segment;
+    Garfunkel.Line = Line;
+    Garfunkel.Ray = Ray;
+    Garfunkel.Circle = Circle;
+    Garfunkel.Triangle = Triangle;
+    Garfunkel.Pool = Pool;
+    Garfunkel.Polygon = Polygon;
+
+    <span class="hljs-comment">//Garfunkel.lineIntersect = lineIntersect;</span>
+
+    <span class="hljs-keyword">return</span> Garfunkel;
+
+}));</code>
+    </pre>
+    </body>
+  
+    </html>
+    

@@ -1,0 +1,25 @@
+
+    <html>
+    <head>
+      <title>/Users/mo/wc/codebook/example-in/example.rs</title>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
+    </head>
+    <body>
+    <pre>
+    <code>
+<span class="hljs-keyword">use</span> ferris_says::say; <span class="hljs-comment">// from the previous step</span>
+<span class="hljs-keyword">use</span> std::io::{stdout, BufWriter};
+
+<span class="hljs-keyword">fn</span> <span class="hljs-title function_">main</span>() {
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">stdout</span> = <span class="hljs-title function_ invoke__">stdout</span>();
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">message</span> = String::<span class="hljs-title function_ invoke__">from</span>(<span class="hljs-string">&quot;Hello fellow Rustaceans!&quot;</span>);
+    <span class="hljs-keyword">let</span> <span class="hljs-variable">width</span> = message.<span class="hljs-title function_ invoke__">chars</span>().<span class="hljs-title function_ invoke__">count</span>();
+
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut </span><span class="hljs-variable">writer</span> = BufWriter::<span class="hljs-title function_ invoke__">new</span>(stdout.<span class="hljs-title function_ invoke__">lock</span>());
+    <span class="hljs-title function_ invoke__">say</span>(message.<span class="hljs-title function_ invoke__">as_bytes</span>(), width, &amp;<span class="hljs-keyword">mut</span> writer).<span class="hljs-title function_ invoke__">unwrap</span>();
+}</code>
+    </pre>
+    </body>
+  
+    </html>
+    

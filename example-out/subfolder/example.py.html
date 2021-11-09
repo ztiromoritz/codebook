@@ -1,0 +1,32 @@
+
+    <html>
+    <head>
+      <title>/Users/mo/wc/codebook/example-in/subfolder/example.py</title>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
+    </head>
+    <body>
+    <pre>
+    <code>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Fibonacci</span>:
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):
+        self.cache = [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>]
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__call__</span>(<span class="hljs-params">self, n</span>):
+        <span class="hljs-comment"># Validate the value of n</span>
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> (<span class="hljs-built_in">isinstance</span>(n, <span class="hljs-built_in">int</span>) <span class="hljs-keyword">and</span> n &gt;= <span class="hljs-number">0</span>):
+            <span class="hljs-keyword">raise</span> ValueError(<span class="hljs-string">f&#x27;Positive integer number expected, got &quot;<span class="hljs-subst">{n}</span>&quot;&#x27;</span>)
+
+        <span class="hljs-comment"># Check for computed Fibonacci numbers</span>
+        <span class="hljs-keyword">if</span> n &lt; <span class="hljs-built_in">len</span>(self.cache):
+            <span class="hljs-keyword">return</span> self.cache[n]
+        <span class="hljs-keyword">else</span>:
+            <span class="hljs-comment"># Compute and cache the requested Fibonacci number</span>
+            fib_number = self(n - <span class="hljs-number">1</span>) + self(n - <span class="hljs-number">2</span>)
+            self.cache.append(fib_number)
+
+        <span class="hljs-keyword">return</span> self.cache[n]</code>
+    </pre>
+    </body>
+  
+    </html>
+    
