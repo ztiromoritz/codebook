@@ -38,15 +38,15 @@ fwalker(in_folder, options)
     fs.readdir(path.resolve(in_folder, p), { withFileTypes: true } ,(err, files) => {
         const links = files.map((entry)=>{
             if(entry.isDirectory()){
-                return `<a href="./${entry.name}">${entry.name}/</a>`
+                return `<a href="./${entry.name}">${entry.name}/</a></br>`
             }else if(entry.isFile()){
-                return `<a href="./${entry.name}.html">${entry.name}</a>`
+                return `<a href="./${entry.name}.html">${entry.name}</a></br>`
             }            
         });
         const content = `
             <html>
             <body>
-                <a href="..">..</a>
+                <a href="..">..</a></br>
                 ${links.join()}
             </body>
             </html>
@@ -66,7 +66,7 @@ fwalker(in_folder, options)
     <html>
     <head>
       <title>${fullPath}</title>
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
+      <link rel="stylesheet" href="https://highlightjs.org/static/demo/styles/qtcreator-light.css">
     </head>
     <body>
     <pre>
